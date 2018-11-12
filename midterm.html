@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+</head>
+<script>
+    //ajax
+var xhr = new XMLHttpRequest();
+xhr.open('get',"https://work1999.kcg.gov.tw/open1999/ServiceRequestsQuery.asmx/ServiceRequestsQuery",true);
+xhr.send();
+
+xhr.onload = function(){
+//--------------------------------Area-------------------------------------------
+var caseArea = document.querySelector('.caseArea');
+var areaList = {};
+var strArea = '<option>' + '請選擇' + '</option>';
+var data = JSON.parse(xhr.responseText);
+//make areaList
+for(var i = 0; i < data.length; i++){
+  if(areaList[data[i].ZipName_] == undefined){
+    areaList[data[i].ZipName_] = 1;
+  }else{
+    areaList[data[i].ZipName_] += 1;
+  }  
+}
+//areaList options
+for(area in areaList){
+  strArea += '<option>' + area + '</option>';
+}
+caseArea.innerHTML = strArea;
+  
+//--------------------------------Type-------------------------------------------
+ 
+
+var caseType = document.querySelector('.caseType');
+var typeList = {};
+var strType = '<option>' + '請選擇' + '</option>';
+var data = JSON.parse(xhr.responseText);
+//make areaList
+for(var j = 0; j < data.length; j++){
+  if(typeList[data[j].InformDesc_] == undefined){
+    typeList[data[j].InformDesc_] = 1;
+  }else{
+    typeList[data[j].InformDesc_] += 1;
+  }  
+}
+//typeList options
+for(type in typeList){
+  strType += '<option>' + type + '</option>';
+}
+caseType.innerHTML = strType;
+  
+//--------------------------------Information-------------------------------------------
+
+//set infor
+var inform = document.querySelector(".list");
+var inforList = "";
+//make inforList
+for(var k = 0; k < data.length; k++){
+  inforList += "<li>" + data[k].ZipName_ + "：" + data[k].address_ + "；" + data[k].InformDesc_ + "</li>";
+}
+inform.innerHTML = inforList;
+  
+//--------------------------------AreaOptionEvent-------------------------------------------
+
+//when area options get activated
+caseArea.addEventListener('change', function(e){ 
+  var areaValue = caseArea.value;
+  var areaInfor = '';
+  var count = 0;
+  for(var i = 0; i < data.length; i++){
+    if(data[i].ZipName_ == areaValue){
+      areaInfor += "<li>" + areaValue + "：" + data[i].address_ + "；" + data[i].InformDesc_ + "</li>";
+      count++;
+    }   
+  }
+  inform.innerHTML = '<h3>' + '在' + areaValue + '總共有' + count + '筆資料' + '</h3>' + areaInfor;  
+});
+
+//--------------------------------TypeOptionEvent-------------------------------------------
+
+//when type options get activated
+caseType.addEventListener('change', function(e){ 
+  var typeValue = caseType.value;
+  var area_typeInfor = '';
+  var count2 = 0;
+  for(var i = 0; i < data.length; i++){
+    if(data[i].InformDesc_ == typeValue && caseArea.value == data[i].ZipName_){
+      area_typeInfor += '<li>' + data[i].ZipName_ + '：' + data[i].address_ + "；" + data[i].InformDesc_ + '</li>';
+      count2++;
+    }    
+  }
+  inform.innerHTML = '<h3>' + '在' + caseArea.value + '發生' + typeValue + '總共有' + count2 + '筆資料' + '</h3>' + area_typeInfor;  
+});
+
+//--------------------------------End-------------------------------------------
+
+};  
+</script>
+<body>
+  <h3>請選擇查詢地區：<select class="caseArea"></select></h3>
+<h3>請選擇災害類型：<select class="caseType"></select></h3>
+<ul class="list"></ul>
+</body>
+</html>
